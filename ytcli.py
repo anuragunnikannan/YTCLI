@@ -26,6 +26,13 @@ except:
     from pytube import Playlist
     import sqlite3
 
+def clear():
+    osname = platform.system()
+    if osname == "Linux":
+        os.system("clear")
+    else:
+        os.system("cls")
+
 # To manipulate data in database
 def change(query, data=[]):
     con = sqlite3.connect("playlist.db")
@@ -66,10 +73,11 @@ def search(osname):
             r = videosSearch.result()
             disp_li = []
             li = []
-            if osname == "Linux":
+            """ if osname == "Linux":
                 os.system("clear")
             else:
-                os.system("cls")
+                os.system("cls") """
+            clear()
 
             for i in r["result"]:
                 title = i["title"][:50]
@@ -87,6 +95,7 @@ def search(osname):
 
 # To prompt the user to select a song
 def play(disp_li, li):
+    clear()
     title = "Choose song:"
     disp_li.append("Back")
     
@@ -102,6 +111,7 @@ def play(disp_li, li):
 
 # To add new playlist
 def addPlaylist():
+    clear()
     name = input("Enter playlist name:")
     link = input("Enter url:")
     query = "CREATE TABLE IF NOT EXISTS Playlist(id, name, link)"
@@ -136,6 +146,7 @@ def getPlaylist():
     for i in li:
         disp_li.append(" ".join(i))
     disp_li.append("Back")
+    clear()
     title = "Choose playlist:"
 
     # displays playlist menu
