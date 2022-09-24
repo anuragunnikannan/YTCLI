@@ -1,9 +1,9 @@
 import os
 import platform
+from sys import displayhook
 osname = platform.system()
 
 # Importing and Installing dependencies
-
 try:
     from youtubesearchpython import VideosSearch
     from pick import pick
@@ -26,9 +26,7 @@ except:
     from pytube import Playlist
     import sqlite3
 
-
 # To manipulate data in database
-
 def change(query, data=[]):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -39,9 +37,7 @@ def change(query, data=[]):
         cur.executemany(query, data)
     con.commit()
 
-
 # To fetch data from database
-
 def fetch(query):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -50,7 +46,6 @@ def fetch(query):
     return li
 
 # To avoid misalignment of titles due to emojis and other characters
-
 def cleanTitle(s):
     title = ''
     spl_char = '[@ _!#$%^&*()<>?/\|}.{~:]'
@@ -60,7 +55,6 @@ def cleanTitle(s):
     return title
 
 # To search for a particular song
-
 def search(osname):
     s = ''
     while True:
@@ -88,15 +82,16 @@ def search(osname):
                     title, duration, views))
                 li.append(i["link"])
 
-            play(disp_li, li)  # sending data to display search details
+            # sending data to display search details
+            play(disp_li, li)
 
-# To prompt the user to select a song and play it
-
+# To prompt the user to select a song
 def play(disp_li, li):
-    title = "Choose video:"
+    title = "Choose song:"
     disp_li.append("Back")
-    option, index = pick(disp_li, title, indicator='=>',
-                         default_index=0)  # displays menu
+    
+    # displays menu
+    option, index = pick(disp_li, title, indicator='=>', default_index=0)
     if index == len(disp_li)-1:
         return
     else:
@@ -106,8 +101,9 @@ def play(disp_li, li):
         os.system(command)
 
 # To add new playlist
-
-def addPlaylist(name, link):
+def addPlaylist():
+    name = input("Enter playlist name:")
+    link = input("Enter url:")
     query = "CREATE TABLE IF NOT EXISTS Playlist(id, name, link)"
     change(query)
     query = "SELECT id FROM Playlist"
@@ -124,38 +120,52 @@ def addPlaylist(name, link):
     data = [(str(id), name, link)]
     query = "INSERT INTO Playlist VALUES(?, ?, ?)"
     change(query, data)
-    print("Playlist added")
 
 # To prompt the user to select a playlist
-
 def getPlaylist():
     query = "SELECT id, name FROM Playlist"
     li = fetch(query)
+    res = True
+    # Prompt user to add new playlist if there are no existing playlist saved
+    if len(li) == 0:
+        addPlaylist()
+        li = fetch(query)
+        res = False
+    
     disp_li = []
     for i in li:
         disp_li.append(" ".join(i))
+    disp_li.append("Back")
     title = "Choose playlist:"
-    option, index = pick(disp_li, title, indicator='=>',
-                         default_index=0)  # displays playlist menu
+
+    # displays playlist menu
+    option, index = pick(disp_li, title, indicator='=>', default_index=0)
+    if index == len(disp_li)-1:
+        return ["", False]
     index = index+1
     query = "SELECT link FROM Playlist WHERE id='"+str(index)+"'"
     li = fetch(query)
     url = li[0][0]
-    name = disp_li[index-1].split(' ')[1]  # storing playlist name
-    playlist = Playlist(url)  # obtaining video urls from playlist
+    
+    # storing playlist name
+    name = disp_li[index-1].split(' ')[1]
+    
+    # obtaining video urls from playlist
+    playlist = Playlist(url)
 
     # saving all urls to a .m3u file named by name of playlist
     with open(name+'.m3u', 'w') as f:
         for i in playlist:
             f.write(i+"\n")
-    return name
+    return [name, res]
 
 # To prompt the user to select a playlist for deletion
-
 def delPlaylist(osname):
-    name = getPlaylist()
-    query = "DELETE FROM Playlist WHERE name='"+name + \
-        "'"  # deleting playlist record from database
+    res = getPlaylist()
+    if res[1] == False:
+        return
+    name = res[0]
+    query = "DELETE FROM Playlist WHERE name='"+name + "'"  # deleting playlist record from database
     change(query)
 
     # deleting .m3u file
@@ -163,7 +173,6 @@ def delPlaylist(osname):
         os.system("rm "+name+".m3u")
     else:
         os.system("del "+name+".m3u")
-    print("Playlist Deleted")
 
 
 if __name__ == "__main__":
@@ -173,12 +182,11 @@ if __name__ == "__main__":
                 "Delete Playlist", "Search", "Exit"]
         options, index = pick(menu, title, indicator='=>', default_index=0)
         if index == 0:
-            name = getPlaylist()
-            os.system("mpv "+name+".m3u --no-video --shuffle")
+            name = getPlaylist()[0]
+            if len(name) != 0:
+                os.system("mpv "+name+".m3u --no-video --shuffle")
         elif index == 1:
-            name = input("Enter playlist name:")
-            link = input("Enter url:")
-            addPlaylist(name, link)
+            addPlaylist()
         elif index == 2:
             delPlaylist(osname)
         elif index == 3:

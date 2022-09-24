@@ -1,6 +1,6 @@
 # YTCLI
 
-A simple CLI that plays youtube playlists and also search for any videos.
+A simple CLI that plays youtube playlists and also search for any videos. It uses <a href="https://mpv.io/">mpv</a> in the background to shuffle videos in playists and play them.
 
 Features:
 <li> Adding a playlist
