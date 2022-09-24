@@ -9,7 +9,6 @@ Features:
 <li> Searching and playing videos
 <li> Works in Windows & Linux (Ubuntu/Debian based distributions)
 
-
 ## Dependencies
 
 All dependencies will be automatically installed. For Windows, <a href="https://chocolatey.org/install">Chocolatey</a> package manager should be installed before using the CLI.
