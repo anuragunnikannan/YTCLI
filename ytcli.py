@@ -26,6 +26,7 @@ except:
     from pytube import Playlist
     import sqlite3
 
+# To clear the screen
 def clear():
     osname = platform.system()
     if osname == "Linux":
@@ -73,10 +74,6 @@ def search(osname):
             r = videosSearch.result()
             disp_li = []
             li = []
-            """ if osname == "Linux":
-                os.system("clear")
-            else:
-                os.system("cls") """
             clear()
 
             for i in r["result"]:
