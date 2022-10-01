@@ -7,7 +7,7 @@ A simple CLI that plays youtube playlists and also search for any videos. It use
 <li> Deleting a playlist
 <li> Automatically updates playlist, once you change it in youtube
 <li> Searching and playing videos
-<li> Works in Windows & Linux (Ubuntu/Debian based distributions)
+<li> Works in Windows & Linux
 
 ## Demo
   

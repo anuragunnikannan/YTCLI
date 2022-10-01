@@ -1,6 +1,6 @@
+from distutils import archive_util
 import os
 import platform
-from sys import displayhook
 osname = platform.system()
 
 # Importing and Installing dependencies
@@ -12,8 +12,25 @@ try:
 except:
     if osname == "Linux":
         pkgmgr = "pip3"
-        os.system("sudo apt install mpv")
-        os.system("sudo apt install python3-pip")
+        dist = os.popen("sed -n -e '/^ID=/p' /etc/os-release").read()[3:]
+        debian_based = ['debian', 'ubuntu',
+                        'linuxmint', 'popos', 'zorin', 'elementary']
+        
+        arch_based = ["manjaro", 'arch', 'endeavouros']
+        if dist in debian_based:
+            os.system("sudo apt install mpv")
+            os.system("sudo apt install python3-pip")
+        elif 'fedora' in dist:
+            os.system("sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
+            os.system("sudo dnf install mpv mpv-libs")
+            os.system("sudo dnf install python3-pip")
+        elif dist in arch_based:
+            os.system("sudo pacman -S python-pip")
+            os.system("sudo pacman -S mpv")
+        else:
+            print("Please install the following dependencies:")
+            print("1. python3-pip")
+            print("2. mpv")
     else:
         pkgmgr = "pip"
         os.system("choco install mpv")
@@ -27,6 +44,8 @@ except:
     import sqlite3
 
 # To clear the screen
+
+
 def clear():
     osname = platform.system()
     if osname == "Linux":
@@ -35,6 +54,8 @@ def clear():
         os.system("cls")
 
 # To manipulate data in database
+
+
 def change(query, data=[]):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -46,6 +67,8 @@ def change(query, data=[]):
     con.commit()
 
 # To fetch data from database
+
+
 def fetch(query):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -54,6 +77,8 @@ def fetch(query):
     return li
 
 # To avoid misalignment of titles due to emojis and other characters
+
+
 def cleanTitle(s):
     title = ''
     spl_char = '[@ _!#$%^&*()<>?/\|}.{~:]'
@@ -63,6 +88,8 @@ def cleanTitle(s):
     return title
 
 # To search for a particular song
+
+
 def search(osname):
     s = ''
     while True:
@@ -91,11 +118,13 @@ def search(osname):
             play(disp_li, li)
 
 # To prompt the user to select a song
+
+
 def play(disp_li, li):
     clear()
     title = "Choose song:"
     disp_li.append("Back")
-    
+
     # displays menu
     option, index = pick(disp_li, title, indicator='=>', default_index=0)
     if index == len(disp_li)-1:
@@ -107,6 +136,8 @@ def play(disp_li, li):
         os.system(command)
 
 # To add new playlist
+
+
 def addPlaylist():
     clear()
     name = input("Enter playlist name:")
@@ -129,6 +160,8 @@ def addPlaylist():
     change(query, data)
 
 # To prompt the user to select a playlist
+
+
 def getPlaylist():
     query = "SELECT id, name FROM Playlist"
     li = fetch(query)
@@ -138,7 +171,7 @@ def getPlaylist():
         addPlaylist()
         li = fetch(query)
         res = False
-    
+
     disp_li = []
     for i in li:
         disp_li.append(" ".join(i))
@@ -154,10 +187,10 @@ def getPlaylist():
     query = "SELECT link FROM Playlist WHERE id='"+str(index)+"'"
     li = fetch(query)
     url = li[0][0]
-    
+
     # storing playlist name
     name = disp_li[index-1].split(' ')[1]
-    
+
     # obtaining video urls from playlist
     playlist = Playlist(url)
 
@@ -168,12 +201,15 @@ def getPlaylist():
     return [name, res]
 
 # To prompt the user to select a playlist for deletion
+
+
 def delPlaylist(osname):
     res = getPlaylist()
     if res[1] == False:
         return
     name = res[0]
-    query = "DELETE FROM Playlist WHERE name='"+name + "'"  # deleting playlist record from database
+    query = "DELETE FROM Playlist WHERE name='"+name + \
+        "'"  # deleting playlist record from database
     change(query)
 
     # deleting .m3u file
