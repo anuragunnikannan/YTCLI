@@ -11,8 +11,9 @@ A simple CLI that plays youtube playlists and also search for any videos. It use
 <li> Works in Windows & Linux
 
 ## Demo
-  
-https://user-images.githubusercontent.com/66474656/192117477-d5cee814-1d75-43a3-b7c9-a84a84a5635a.mp4
+
+https://user-images.githubusercontent.com/66474656/193666689-4e967b74-09aa-4f64-a23f-3d0885a3ca11.mp4
+
 
 ## Dependencies
 
