@@ -13,9 +13,7 @@ A simple CLI that plays youtube playlists and also search for any videos. It use
 
 ## Demo
   
-<figure class="video_container">
-  <iframe src="https://i.imgur.com/uU9hgOo.mp4" frameborder="0" allowfullscreen="true"> </iframe>
-</figure>
+https://i.imgur.com/uU9hgOo.mp4
 
 ## Dependencies
 
