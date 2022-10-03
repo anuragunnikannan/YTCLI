@@ -1,7 +1,21 @@
-from distutils import archive_util
 import os
 import platform
+import setup
 osname = platform.system()
+mpv = ""
+pip = ""
+clear = ""
+delete = ""
+if osname == "Linux":
+    mpv = "mpv"
+    pip = "pip3"
+    clear = "clear"
+    delete = "rm"
+elif osname == "Windows":
+    mpv = ".\mpv"
+    pip = "pip"
+    clear = "cls"
+    delete = "del"
 
 # Importing and Installing dependencies
 try:
@@ -9,53 +23,18 @@ try:
     from pick import pick
     from pytube import Playlist
     import sqlite3
+    hasmpv = len(os.popen(mpv+" --version").read())
+    haspip = len(os.popen(pip+" --version").read())
+    if hasmpv == 0 or haspip == 0:
+        raise Exception
 except:
-    if osname == "Linux":
-        pkgmgr = "pip3"
-        dist = os.popen("sed -n -e '/^ID=/p' /etc/os-release").read()[3:]
-        debian_based = ['debian', 'ubuntu',
-                        'linuxmint', 'popos', 'zorin', 'elementary']
-        
-        arch_based = ["manjaro", 'arch', 'endeavouros']
-        if dist in debian_based:
-            os.system("sudo apt install mpv")
-            os.system("sudo apt install python3-pip")
-        elif 'fedora' in dist:
-            os.system("sudo dnf install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm")
-            os.system("sudo dnf install mpv mpv-libs")
-            os.system("sudo dnf install python3-pip")
-        elif dist in arch_based:
-            os.system("sudo pacman -S python-pip")
-            os.system("sudo pacman -S mpv")
-        else:
-            print("Please install the following dependencies:")
-            print("1. python3-pip")
-            print("2. mpv")
-    else:
-        pkgmgr = "pip"
-        os.system("choco install mpv")
-    os.system(pkgmgr+" install youtube-search-python")
-    os.system(pkgmgr+" install pick")
-    os.system(pkgmgr+" install pytube")
-    os.system(pkgmgr+" install youtube-dl")
+    setup.install(osname)
     from youtubesearchpython import VideosSearch
     from pick import pick
     from pytube import Playlist
     import sqlite3
 
-# To clear the screen
-
-
-def clear():
-    osname = platform.system()
-    if osname == "Linux":
-        os.system("clear")
-    else:
-        os.system("cls")
-
 # To manipulate data in database
-
-
 def change(query, data=[]):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -67,8 +46,6 @@ def change(query, data=[]):
     con.commit()
 
 # To fetch data from database
-
-
 def fetch(query):
     con = sqlite3.connect("playlist.db")
     cur = con.cursor()
@@ -77,8 +54,6 @@ def fetch(query):
     return li
 
 # To avoid misalignment of titles due to emojis and other characters
-
-
 def cleanTitle(s):
     title = ''
     spl_char = '[@ _!#$%^&*()<>?/\|}.{~:]'
@@ -88,8 +63,6 @@ def cleanTitle(s):
     return title
 
 # To search for a particular song
-
-
 def search(osname):
     s = ''
     while True:
@@ -101,7 +74,7 @@ def search(osname):
             r = videosSearch.result()
             disp_li = []
             li = []
-            clear()
+            os.system(clear)
 
             for i in r["result"]:
                 title = i["title"][:50]
@@ -110,18 +83,15 @@ def search(osname):
                     title = title + " "*(50 - len(title))
                 duration = i["duration"]
                 views = i["viewCount"]["short"]
-                disp_li.append("{0}\t\t{1}\t\t{2}".format(
-                    title, duration, views))
+                disp_li.append("{0}\t\t{1}\t\t{2}".format(title, duration, views))
                 li.append(i["link"])
 
             # sending data to display search details
             play(disp_li, li)
 
 # To prompt the user to select a song
-
-
 def play(disp_li, li):
-    clear()
+    os.system(clear)
     title = "Choose song:"
     disp_li.append("Back")
 
@@ -132,14 +102,21 @@ def play(disp_li, li):
     else:
         print(option, index)
         print("\n", li[index])
-        command = "mpv {0} --no-video".format(li[index])
+        title = "Choose mode:"
+        disp_li = ["Audio only mode", "Regular mode", "Back"]
+        option, i = pick(disp_li, title, indicator='=>', default_index=0)
+        if i == 0:
+            command = mpv+" {0} --no-video".format(li[index])
+        elif i == 1:
+            command = mpv+" {0}".format(li[index])
+        else:
+            return
+
         os.system(command)
 
 # To add new playlist
-
-
 def addPlaylist():
-    clear()
+    os.system(clear)
     name = input("Enter playlist name:")
     link = input("Enter url:")
     query = "CREATE TABLE IF NOT EXISTS Playlist(id, name, link)"
@@ -160,8 +137,6 @@ def addPlaylist():
     change(query, data)
 
 # To prompt the user to select a playlist
-
-
 def getPlaylist():
     query = "SELECT id, name FROM Playlist"
     li = fetch(query)
@@ -176,7 +151,7 @@ def getPlaylist():
     for i in li:
         disp_li.append(" ".join(i))
     disp_li.append("Back")
-    clear()
+    os.system(clear)
     title = "Choose playlist:"
 
     # displays playlist menu
@@ -201,8 +176,6 @@ def getPlaylist():
     return [name, res]
 
 # To prompt the user to select a playlist for deletion
-
-
 def delPlaylist(osname):
     res = getPlaylist()
     if res[1] == False:
@@ -213,22 +186,27 @@ def delPlaylist(osname):
     change(query)
 
     # deleting .m3u file
-    if osname == "Linux":
-        os.system("rm "+name+".m3u")
-    else:
-        os.system("del "+name+".m3u")
+    os.system(delete+" "+name+".m3u")
 
 
 if __name__ == "__main__":
     while(True):
         title = "\n\n What would you like to do? :"
-        menu = ["Start Playlist", "Add Playlist",
-                "Delete Playlist", "Search", "Exit"]
+        menu = ["Start Playlist", "Add Playlist", "Delete Playlist", "Search", "Exit"]
         options, index = pick(menu, title, indicator='=>', default_index=0)
         if index == 0:
             name = getPlaylist()[0]
             if len(name) != 0:
-                os.system("mpv "+name+".m3u --no-video --shuffle")
+                title = "Choose mode:"
+                disp_li = ["Audio only mode", "Regular mode", "Back"]
+                option, i = pick(disp_li, title, indicator='=>', default_index=0)
+                if i == 0:
+                    command = mpv+" "+name+".m3u --no-video --shuffle"
+                elif i == 1:
+                    command = mpv+" "+name+".m3u --shuffle"
+                else:
+                    continue
+                os.system(command)
         elif index == 1:
             addPlaylist()
         elif index == 2:

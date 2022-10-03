@@ -1,2 +1,8 @@
 *.m3u
 *.db
+doc/
+installer/
+__pycache__/
+mpv*
+*.dll
+*.bat
