@@ -1,5 +1,4 @@
 import os
-import requests
 def install(osname):
     if osname == "Linux":
         distro_name = os.popen("sed -n -e '/^ID=/p' /etc/os-release").read()[3:-1]
@@ -28,8 +27,10 @@ def install(osname):
         os.system(pkgmgr+" install yt-dlp")
         os.system("mv ~/.local/bin/yt-dlp ~/.local/bin/youtube-dl")
     else:
+        import requests
         # Installing python packages
         pkgmgr = "pip"
+        os.system(pkgmgr+" install requests")
         os.system(pkgmgr+" install youtube-search-python")
         os.system(pkgmgr+" install pick")
         os.system(pkgmgr+" install pytube")
