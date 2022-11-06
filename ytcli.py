@@ -17,7 +17,7 @@ elif osname == "Windows":
     clear = "cls"
     delete = "del"
 
-# Importing and Installing dependencies
+# Importing and installing dependencies
 try:
     from youtubesearchpython import VideosSearch
     from pick import pick
