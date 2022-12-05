@@ -22,7 +22,6 @@ def install(osname):
         # Installing python packages
         pkgmgr = "pip3"
         os.system(pkgmgr+" install youtube-search-python")
-        os.system(pkgmgr+" install pick")
         os.system(pkgmgr+" install pytube")
         os.system(pkgmgr+" install yt-dlp")
         os.system("mv ~/.local/bin/yt-dlp ~/.local/bin/youtube-dl")
@@ -32,7 +31,6 @@ def install(osname):
         pkgmgr = "pip"
         os.system(pkgmgr+" install requests")
         os.system(pkgmgr+" install youtube-search-python")
-        os.system(pkgmgr+" install pick")
         os.system(pkgmgr+" install pytube")
         os.system(pkgmgr+" install yt-dlp")
         os.system(pkgmgr+" install py7zr")

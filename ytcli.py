@@ -20,7 +20,6 @@ elif osname == "Windows":
 # Importing and installing dependencies
 try:
     from youtubesearchpython import VideosSearch
-    from pick import pick
     from pytube import Playlist
     import sqlite3
     hasmpv = len(os.popen(mpv+" --version").read())
@@ -30,7 +29,6 @@ try:
 except:
     setup.install(osname)
     from youtubesearchpython import VideosSearch
-    from pick import pick
     from pytube import Playlist
     import sqlite3
 
@@ -53,14 +51,15 @@ def fetch(query):
     li = res.fetchall()
     return li
 
-# To avoid misalignment of titles due to emojis and other characters
-def cleanTitle(s):
-    title = ''
-    spl_char = '[@ _!#$%^&*()<>?/\|}.{~:]'
-    for i in s:
-        if i.isalpha() or i.isdigit() or i in spl_char:
-            title = title + i
-    return title
+# To display menu
+def menu(title, options):
+    os.system(clear)
+    for i, val in enumerate(options):
+        print(str(i+1) + "\t" + val)
+    print("\q\tBack")
+    choice = input(title)
+    os.system(clear)
+    return choice
 
 # To search for a particular song
 def search(osname):
@@ -70,20 +69,20 @@ def search(osname):
         if s == "\q":
             break
         else:
-            videosSearch = VideosSearch(s, limit=21)
+            videosSearch = VideosSearch(s, limit=50)
             r = videosSearch.result()
             disp_li = []
             li = []
             os.system(clear)
 
             for i in r["result"]:
-                title = i["title"][:50]
-                title = cleanTitle(title)
-                if len(title) < 50:
-                    title = title + " "*(50 - len(title))
+                title = i["title"][:40]
+                if len(title) < 40:
+                    title = title + " "*(40 - len(title))
                 duration = i["duration"]
                 views = i["viewCount"]["short"]
-                disp_li.append("{0}\t\t{1}\t\t{2}".format(title, duration, views))
+                disp_li.append("{0}\t\t\t{1}\t\t{2}".format(
+                    title, duration, views))
                 li.append(i["link"])
 
             # sending data to display search details
@@ -91,29 +90,21 @@ def search(osname):
 
 # To prompt the user to select a song
 def play(disp_li, li):
-    os.system(clear)
-    title = "Choose song:"
-    disp_li.append("Back")
-
-    # displays menu
-    option, index = pick(disp_li, title, indicator='=>', default_index=0)
-    if index == len(disp_li)-1:
+    music = menu(title="Choose Song: ", options=disp_li)
+    if music == "\q":
         return
     else:
-        print(option, index)
-        print("\n", li[index])
-        title = "Choose mode:"
-        disp_li = ["Audio only mode", "Regular mode", "Back"]
-        option, i = pick(disp_li, title, indicator='=>', default_index=0)
-        if i == 0:
-            command = mpv+" {0} --no-video".format(li[index])
-        elif i == 1:
-            command = mpv+" {0}".format(li[index])
+        choice = menu(title="Enter your choice: ", options=["Audio only mode", "Regular Mode"])
+        print(disp_li[int(music)-1])
+        print("\n", li[int(music)-1], "\n")
+        if choice == "1":
+            command = mpv+" {0} --no-video".format(li[int(music)-1])
+        elif choice == "2":
+            command = mpv+" {0}".format(li[int(music)-1])
         else:
-            return
-
+            return ""
         os.system(command)
-
+           
 # To add new playlist
 def addPlaylist():
     os.system(clear)
@@ -150,15 +141,12 @@ def getPlaylist():
     disp_li = []
     for i in li:
         disp_li.append(" ".join(i))
-    disp_li.append("Back")
-    os.system(clear)
-    title = "Choose playlist:"
-
     # displays playlist menu
-    option, index = pick(disp_li, title, indicator='=>', default_index=0)
-    if index == len(disp_li)-1:
+    playlist = menu(title="Choose playlist: ", options=disp_li)
+    print("Updating playlist......")
+    if playlist == "\q":
         return ["", False]
-    index = index+1
+    index = int(playlist)
     query = "SELECT link FROM Playlist WHERE id='"+str(index)+"'"
     li = fetch(query)
     url = li[0][0]
@@ -188,30 +176,25 @@ def delPlaylist(osname):
     # deleting .m3u file
     os.system(delete+" "+name+".m3u")
 
-
 if __name__ == "__main__":
     while(True):
-        title = "\n\n What would you like to do? :"
-        menu = ["Start Playlist", "Add Playlist", "Delete Playlist", "Search", "Exit"]
-        options, index = pick(menu, title, indicator='=>', default_index=0)
-        if index == 0:
+        choice = menu(title="Enter your choice: ", options=["Start Playlist", "Add Playlist", "Delete Playlist", "Search"])
+        if choice == "1":
             name = getPlaylist()[0]
             if len(name) != 0:
-                title = "Choose mode:"
-                disp_li = ["Audio only mode", "Regular mode", "Back"]
-                option, i = pick(disp_li, title, indicator='=>', default_index=0)
-                if i == 0:
+                mode = menu(title="Choose mode: ", options=["Audio only mode", "Regular Mode"])
+                if mode == "1":
                     command = mpv+" "+name+".m3u --no-video --shuffle"
-                elif i == 1:
+                elif mode == "2":
                     command = mpv+" "+name+".m3u --shuffle"
                 else:
                     continue
                 os.system(command)
-        elif index == 1:
+        elif choice == "2":
             addPlaylist()
-        elif index == 2:
+        elif choice == "3":
             delPlaylist(osname)
-        elif index == 3:
+        elif choice == "4":
             search(osname)
-        elif index == 4:
+        elif choice == "\q":
             exit()
