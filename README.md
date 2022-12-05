@@ -13,7 +13,7 @@ A simple CLI that plays youtube playlists and also search for any videos. It use
 
 ## Demo
   
-https://i.imgur.com/uU9hgOo.mp4
+<div style="width:100%;height:0px;position:relative;padding-bottom:56.223%;"><iframe src="https://streamable.com/e/t52l7k" frameborder="0" width="100%" height="100%" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"></iframe></div>
 
 ## Dependencies
 
