@@ -5,17 +5,14 @@ osname = platform.system()
 mpv = ""
 pip = ""
 clear = ""
-delete = ""
 if osname == "Linux":
     mpv = "mpv"
     pip = "pip3"
     clear = "clear"
-    delete = "rm"
 elif osname == "Windows":
     mpv = ".\mpv"
     pip = "pip"
     clear = "cls"
-    delete = "del"
 
 # Importing and installing dependencies
 try:
@@ -150,43 +147,25 @@ def getPlaylist():
     query = "SELECT link FROM Playlist WHERE id='"+str(index)+"'"
     li = fetch(query)
     url = li[0][0]
-
-    # storing playlist name
-    name = disp_li[index-1].split(' ')[1]
-
-    # obtaining video urls from playlist
-    playlist = Playlist(url)
-
-    # saving all urls to a .m3u file named by name of playlist
-    with open(name+'.m3u', 'w') as f:
-        for i in playlist:
-            f.write(i+"\n")
-    return [name, res]
+    return url
 
 # To prompt the user to select a playlist for deletion
 def delPlaylist(osname):
-    res = getPlaylist()
-    if res[1] == False:
-        return
-    name = res[0]
-    query = "DELETE FROM Playlist WHERE name='"+name + \
-        "'"  # deleting playlist record from database
+    link = getPlaylist()
+    query = "DELETE FROM Playlist WHERE link='"+link + "'"  # deleting playlist record from database
     change(query)
-
-    # deleting .m3u file
-    os.system(delete+" "+name+".m3u")
 
 if __name__ == "__main__":
     while(True):
         choice = menu(title="Enter your choice: ", options=["Start Playlist", "Add Playlist", "Delete Playlist", "Search"])
         if choice == "1":
-            name = getPlaylist()[0]
-            if len(name) != 0:
+            link = getPlaylist()
+            if len(link) != 0:
                 mode = menu(title="Choose mode: ", options=["Audio only mode", "Regular Mode"])
                 if mode == "1":
-                    command = mpv+" "+name+".m3u --no-video --shuffle"
+                    command = mpv+" "+link+" --no-video --shuffle"
                 elif mode == "2":
-                    command = mpv+" "+name+".m3u --shuffle"
+                    command = mpv+" "+link+" --shuffle"
                 else:
                     continue
                 os.system(command)
