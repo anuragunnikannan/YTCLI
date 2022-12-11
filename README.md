@@ -19,4 +19,4 @@ https://streamable.com/t52l7k
 
 All dependencies will be automatically installed.
 
-NOTE: In Windows, mpv will be working as a standalone exe in the working directory.
+NOTE: In Windows, mpv will be working as a standalone executable file in the working directory.
