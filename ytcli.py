@@ -126,7 +126,7 @@ def addPlaylist():
 
 # To prompt the user to select a playlist
 def getPlaylist():
-    query = "SELECT id, name FROM Playlist"
+    query = "SELECT name FROM Playlist"
     li = fetch(query)
     res = True
     # Prompt user to add new playlist if there are no existing playlist saved
