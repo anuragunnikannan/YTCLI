@@ -26,7 +26,6 @@ def install(osname):
         os.system(pkgmgr+" install yt-dlp")
         os.system("mv ~/.local/bin/yt-dlp ~/.local/bin/youtube-dl")
     else:
-        import requests
         # Installing python packages
         pkgmgr = "pip"
         os.system(pkgmgr+" install requests")
@@ -34,7 +33,8 @@ def install(osname):
         os.system(pkgmgr+" install pytube")
         os.system(pkgmgr+" install yt-dlp")
         os.system(pkgmgr+" install py7zr")
-
+        
+        import requests
         # Downloading and extracting mpv
         print("Downloading mpv....")
         url = "https://sourceforge.net/projects/mpv-player-windows/files/64bit-v3/mpv-x86_64-v3-20221002-git-2207236.7z/download"
