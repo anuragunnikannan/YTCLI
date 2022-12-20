@@ -56,10 +56,12 @@ def menu(title, options):
     print("\q\tBack")
     choice = input(title)
     os.system(clear)
-    return choice
+    if choice == "\q":
+        return [choice, "Back"]
+    return [choice, options[int(choice) - 1]]
 
 # To search for a particular song
-def search(osname):
+def search():
     s = ''
     while True:
         s = input("Search: ")
@@ -78,8 +80,7 @@ def search(osname):
                     title = title + " "*(40 - len(title))
                 duration = i["duration"]
                 views = i["viewCount"]["short"]
-                disp_li.append("{0}\t\t\t{1}\t\t{2}".format(
-                    title, duration, views))
+                disp_li.append("{0}\t\t\t{1}\t\t{2}".format(title, duration, views))
                 li.append(i["link"])
 
             # sending data to display search details
@@ -87,11 +88,11 @@ def search(osname):
 
 # To prompt the user to select a song
 def play(disp_li, li):
-    music = menu(title="Choose Song: ", options=disp_li)
+    music = menu(title="Choose Song: ", options=disp_li)[0]
     if music == "\q":
         return
     else:
-        choice = menu(title="Enter your choice: ", options=["Audio only mode", "Regular Mode"])
+        choice = menu(title="Enter your choice: ", options=["Audio only mode", "Regular Mode"])[0]
         print(disp_li[int(music)-1])
         print("\n", li[int(music)-1], "\n")
         if choice == "1":
@@ -138,30 +139,31 @@ def getPlaylist():
     disp_li = []
     for i in li:
         disp_li.append(" ".join(i))
+        
     # displays playlist menu
-    playlist = menu(title="Choose playlist: ", options=disp_li)
-    print("Updating playlist......")
-    if playlist == "\q":
-        return ["", False]
-    index = int(playlist)
-    query = "SELECT link FROM Playlist WHERE id='"+str(index)+"'"
+    playlist = menu(title="Choose playlist: ", options=disp_li)[1]
+    if playlist == "Back":
+        return False
+    query = "SELECT link FROM Playlist WHERE name='"+playlist+"'"
     li = fetch(query)
     url = li[0][0]
     return url
 
 # To prompt the user to select a playlist for deletion
-def delPlaylist(osname):
+def delPlaylist():
     link = getPlaylist()
+    if link == False:
+        return
     query = "DELETE FROM Playlist WHERE link='"+link + "'"  # deleting playlist record from database
     change(query)
 
 if __name__ == "__main__":
     while(True):
-        choice = menu(title="Enter your choice: ", options=["Start Playlist", "Add Playlist", "Delete Playlist", "Search"])
+        choice = menu(title="Enter your choice: ", options=["Start Playlist", "Add Playlist", "Delete Playlist", "Search"])[0]
         if choice == "1":
             link = getPlaylist()
-            if len(link) != 0:
-                mode = menu(title="Choose mode: ", options=["Audio only mode", "Regular Mode"])
+            if link != False:
+                mode = menu(title="Choose mode: ", options=["Audio only mode", "Regular Mode"])[0]
                 if mode == "1":
                     command = mpv+" "+link+" --no-video --shuffle"
                 elif mode == "2":
@@ -172,8 +174,8 @@ if __name__ == "__main__":
         elif choice == "2":
             addPlaylist()
         elif choice == "3":
-            delPlaylist(osname)
+            delPlaylist()
         elif choice == "4":
-            search(osname)
+            search()
         elif choice == "\q":
             exit()
